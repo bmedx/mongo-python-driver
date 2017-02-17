@@ -49,22 +49,30 @@ class GridFS(object):
 
         .. mongodoc:: gridfs
         """
-        if not isinstance(database, Database):
-            raise TypeError("database must be an instance of Database")
+        #if not isinstance(database, Database):
+        #    raise TypeError("database must be an instance of Database")
 
         self.__database = database
+        print database[collection]
+        print database[collection].__dict__
         self.__collection = database[collection]
+        self.__collection.files = database.create_collection("fs.files")
+        self.__collection.chunks = database.create_collection("fs.chunks")
         self.__files = self.__collection.files
         self.__chunks = self.__collection.chunks
+        self.__database.connection = self.__database._client
         if _connect:
             self.__ensure_index_files_id()
 
     def __is_secondary(self):
-        client = self.__database.connection
+        try:
+            client = self.__database.connection
 
-        # Connect the client, so we know if it's connected to the primary.
-        client._ensure_connected()
-        return isinstance(client, MongoClient) and not client.is_primary
+            # Connect the client, so we know if it's connected to the primary.
+            client._ensure_connected()
+            return isinstance(client, MongoClient) and not client.is_primary
+        except:
+            return False
 
     def __ensure_index_files_id(self):
         if not self.__is_secondary():
@@ -134,7 +142,7 @@ class GridFS(object):
         grid_file = GridIn(self.__collection, **kwargs)
 
         # Start a request - necessary if w=0, harmless otherwise
-        request = self.__collection.database.connection.start_request()
+        request = self.__collection.database._client.start_request()
         try:
             try:
                 grid_file.write(data)
@@ -253,8 +261,7 @@ class GridFS(object):
         .. versionadded:: 1.6
         """
         self.__ensure_index_files_id()
-        self.__files.remove({"_id": file_id},
-                            **self.__files._get_wc_override())
+        self.__files.remove({"_id": file_id})
         self.__chunks.remove({"files_id": file_id})
 
     def list(self):

@@ -66,8 +66,7 @@ def _create_property(field_name, docstring,
     def setter(self, value):
         if self._closed:
             self._coll.files.update({"_id": self._file["_id"]},
-                                    {"$set": {field_name: value}},
-                                    **self._coll._get_wc_override())
+                                    {"$set": {field_name: value}})
         self._file[field_name] = value
 
     if read_only:
@@ -143,9 +142,9 @@ class GridIn(object):
           - `root_collection`: root collection to write to
           - `**kwargs` (optional): file level options (see above)
         """
-        if not isinstance(root_collection, Collection):
-            raise TypeError("root_collection must be an "
-                            "instance of Collection")
+        #if not isinstance(root_collection, Collection):
+        #    raise TypeError("root_collection must be an "
+        #                    "instance of Collection")
 
         # Handle alternative naming
         if "content_type" in kwargs:
@@ -211,8 +210,7 @@ class GridIn(object):
             self._file[name] = value
             if self._closed:
                 self._coll.files.update({"_id": self._file["_id"]},
-                                        {"$set": {name: value}},
-                                        **self._coll._get_wc_override())
+                                        {"$set": {name: value}})
 
     def __flush_data(self, data):
         """Flush `data` to a chunk.
@@ -256,18 +254,17 @@ class GridIn(object):
             # connection, can succeed out-of-order due to the writebackListener.
             # We mustn't call "filemd5" until all inserts are complete, which
             # we ensure by calling getLastError (and ignoring the result).
-            db.command('getlasterror', read_preference=ReadPreference.PRIMARY)
+            #db.command('getlasterror', read_preference=ReadPreference.PRIMARY)
 
-            md5 = db.command(
-                "filemd5", self._id, root=self._coll.name,
-                read_preference=ReadPreference.PRIMARY)["md5"]
+            md5 = "toot"  #db.command(
+                #"filemd5", self._id, root=self._coll.name,
+                #read_preference=ReadPreference.PRIMARY)["md5"]
 
             self._file["md5"] = md5
             self._file["length"] = self._position
             self._file["uploadDate"] = datetime.datetime.utcnow()
 
-            return self._coll.files.insert(self._file,
-                                           **self._coll._get_wc_override())
+            return self._coll.files.insert(self._file)
         except DuplicateKeyError:
             self._raise_file_exists(self._id)
 
@@ -392,9 +389,9 @@ class GridOut(object):
         .. versionadded:: 1.9
            The `file_document` parameter.
         """
-        if not isinstance(root_collection, Collection):
-            raise TypeError("root_collection must be an "
-                            "instance of Collection")
+        #if not isinstance(root_collection, Collection):
+        #    raise TypeError("root_collection must be an "
+        #                    "instance of Collection")
 
         self.__chunks = root_collection.chunks
         self.__files = root_collection.files
