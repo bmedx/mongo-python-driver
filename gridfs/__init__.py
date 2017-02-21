@@ -53,8 +53,8 @@ class GridFS(object):
         #    raise TypeError("database must be an instance of Database")
 
         self.__database = database
-        print database[collection]
-        print database[collection].__dict__
+        #print database[collection]
+        #print database[collection].__dict__
         self.__collection = database[collection]
         self.__collection.files = database.create_collection("fs.files")
         self.__collection.chunks = database.create_collection("fs.chunks")
