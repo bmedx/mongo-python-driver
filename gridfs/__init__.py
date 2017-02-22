@@ -142,6 +142,13 @@ class GridFS(object):
         grid_file = GridIn(self.__collection, **kwargs)
 
         # Start a request - necessary if w=0, harmless otherwise
+        print "========="
+        print self.__collection
+        print self.__collection.database
+        print self.__collection.database.connection
+        print self.__collection.database._client
+        print "========="
+
         request = self.__collection.database._client.start_request()
         try:
             try:
