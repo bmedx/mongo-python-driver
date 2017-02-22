@@ -31,6 +31,8 @@ from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from pymongo.errors import DuplicateKeyError
 from pymongo.read_preferences import ReadPreference
+from hashlib import md5
+
 
 try:
     _SEEK_SET = os.SEEK_SET
@@ -256,11 +258,14 @@ class GridIn(object):
             # we ensure by calling getLastError (and ignoring the result).
             #db.command('getlasterror', read_preference=ReadPreference.PRIMARY)
 
-            md5 = "toot"  #db.command(
-                #"filemd5", self._id, root=self._coll.name,
-                #read_preference=ReadPreference.PRIMARY)["md5"]
+            #md5 = db.command(
+            #    "filemd5", self._id, root=self._coll.name,
+            #    read_preference=ReadPreference.PRIMARY)["md5"]
 
-            self._file["md5"] = md5
+            m = md5()
+            m.update("mock string since mongomock doesn't handle commands")
+
+            self._file["md5"] = m.hexdigest()
             self._file["length"] = self._position
             self._file["uploadDate"] = datetime.datetime.utcnow()
 
